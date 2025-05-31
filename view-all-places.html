@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Campus Study Places</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      color: #111827;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      background: none;
+      position: relative;
+      overflow-x: hidden;
+    }
+    .gradient-bg {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 0;
+      background: radial-gradient(circle at 20% 30%, #fef08a 0%, #a5b4fc 40%, #38bdf8 100%);
+      transition: background 0.5s;
+      animation: moveLight 8s infinite alternate;
+    }
+    @keyframes moveLight {
+      0% { background-position: 20% 30%; }
+      100% { background-position: 80% 70%; }
+    }
+    body.dark-mode .gradient-bg {
+      background: radial-gradient(circle at 60% 40%, #232946 0%, #121629 60%, #0f172a 100%);
+    }
+    #particles {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+    header, main, footer {
+      position: relative;
+      z-index: 2;
+    }
+    header {
+      background: rgba(37, 99, 235, 0.95);
+      color: #fff;
+      padding: 2rem 0 1rem 0;
+      text-align: center;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+      position: relative;
+    }
+    .toggle-btn {
+      position: absolute;
+      top: 1.5rem;
+      right: 2rem;
+      background: #fff;
+      color: #2563eb;
+      border: none;
+      border-radius: 20px;
+      padding: 0.5rem 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark-mode .toggle-btn {
+      background: #232946;
+      color: #f4f4f4;
+      border: 1px solid #fff;
+    }
+    .places-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      align-items: flex-start;
+      margin-top: 2rem;
+    }
+    .place-card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 16px;
+      box-shadow: 0 4px 16px #0001;
+      padding: 1.5rem 2rem;
+      min-width: 260px;
+      max-width: 320px;
+      width: 100%;
+      border: 2px solid #a5b4fc;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      transition: background 0.5s, border-color 0.3s;
+    }
+    .place-card:not(:last-child) {
+      margin-bottom: 0;
+    }
+    body.dark-mode .place-card {
+      background: rgba(35,41,70,0.98);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.38), 0 1.5px 8px #232946;
+      color: #e0e7ff;
+      border: 2px solid #232946;
+    }
+    .status {
+      font-weight: bold;
+      margin-top: 0.5rem;
+    }
+    .status.available {
+      color: #16a34a;
+    }
+    .status.booked {
+      color: #dc2626;
+    }
+    .top-actions {
+      text-align: center;
+      margin: 1.5rem 0 0 0;
+    }
+    .btn {
+      display: inline-block;
+      background: #3b82f6;
+      color: #fff;
+      padding: 0.7rem 1.5rem;
+      margin: 0 0.5rem 0.5rem 0;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: background 0.2s, transform 0.2s;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.18);
+      text-decoration: none;
+    }
+    .btn:hover {
+      background: #1e40af;
+      transform: translateY(-2px) scale(1.03);
+    }
+    footer {
+      background: #1e40af;
+      color: #fff;
+      text-align: center;
+      padding: 1rem 0;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      margin-top: auto;
+    }
+    body.dark-mode footer {
+      background: #232946;
+      color: #a5b4fc;
+    }
+  </style>
+</head>
+<body>
+  <div class="gradient-bg"></div>
+  <canvas id="particles"></canvas>
+  <header>
+    <h1>All Available Study Places in Campus</h1>
+    <button class="toggle-btn" onclick="toggleMode()" id="toggleModeBtn">🌙 Dark Mode</button>
+    <div class="top-actions">
+      <button class="btn" onclick="logout()">Logout</button>
+      <a class="btn" href="select-space.html">Select Place to Study</a>
+      <a class="btn" href="index.html">Back to Home</a>
+    </div>
+  </header>
+  <main>
+    <div class="places-list" id="placesList"></div>
+  </main>
+  <footer>
+    <p>&copy; 2025 Smart Study Zone Finder</p>
+  </footer>
+  <script>
+    // Toggle mode and persist in localStorage
+    function toggleMode() {
+      const body = document.body;
+      const btn = document.getElementById('toggleModeBtn');
+      body.classList.toggle('dark-mode');
+      if (body.classList.contains('dark-mode')) {
+        btn.textContent = "☀️ Light Mode";
+        localStorage.setItem('theme', 'dark');
+      } else {
+        btn.textContent = "🌙 Dark Mode";
+        localStorage.setItem('theme', 'light');
+      }
+    }
+    // Animated floating squares background
+    function startParticles() {
+      const canvas = document.getElementById('particles');
+      const ctx = canvas.getContext('2d');
+      let w = window.innerWidth, h = window.innerHeight;
+      canvas.width = w; canvas.height = h;
+      let particles = [];
+      for (let i = 0; i < 30; i++) {
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          size: Math.random() * 18 + 8,
+          dx: (Math.random() - 0.5) * 0.5,
+          dy: (Math.random() - 0.5) * 0.5,
+          color: `rgba(${Math.floor(Math.random() * 100 + 150)},${Math.floor(Math.random() * 100 + 150)},${Math.floor(Math.random() * 100 + 150)},0.18)`
+        });
+      }
+      function animate() {
+        ctx.clearRect(0, 0, w, h);
+        for (let p of particles) {
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.x + p.y) / 200);
+          ctx.fillStyle = p.color;
+          ctx.shadowColor = p.color;
+          ctx.shadowBlur = 16;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          ctx.restore();
+          p.x += p.dx;
+          p.y += p.dy;
+          if (p.x < 0 || p.x > w) p.dx *= -1;
+          if (p.y < 0 || p.y > h) p.dy *= -1;
+        }
+        requestAnimationFrame(animate);
+      }
+      animate();
+      window.onresize = () => {
+        w = window.innerWidth;
+        h = window.innerHeight;
+        canvas.width = w;
+        canvas.height = h;
+      };
+    }
+    // Places data
+    const places = [
+      { id: 1, name: "Library Study Room", capacity: 4, amenities: "Wi-Fi, Whiteboard" },
+      { id: 2, name: "Cafeteria Corner", capacity: 6, amenities: "Wi-Fi, Power Outlets" },
+      { id: 3, name: "Quiet Study Hall", capacity: 10, amenities: "Wi-Fi, Projector" },
+      { id: 4, name: "Outdoor Patio", capacity: 8, amenities: "Wi-Fi, Shade" }
+    ];
+    // Get bookings from localStorage
+    function getBookings() {
+      const stored = localStorage.getItem('bookings');
+      if (stored) return JSON.parse(stored);
+      return [];
+    }
+    // Save bookings to localStorage
+    function saveBookings(bookings) {
+      localStorage.setItem('bookings', JSON.stringify(bookings));
+    }
+    // Unbook a place by id
+    function unbookPlace(id) {
+      let bookings = getBookings();
+      bookings = bookings.filter(b => b.id !== id);
+      saveBookings(bookings);
+      renderPlaces();
+    }
+    // Check if booking expired (1 hour = 3600000 ms)
+    function isBookingExpired(booking) {
+      if (!booking || !booking.time) return false;
+      return (Date.now() - booking.time) > 3600000;
+    }
+    function renderPlaces() {
+      let bookings = getBookings();
+      // Remove expired bookings
+      let changed = false;
+      bookings = bookings.filter(b => {
+        if (isBookingExpired(b)) {
+          changed = true;
+          return false;
+        }
+        return true;
+      });
+      if (changed) saveBookings(bookings);
+      const list = document.getElementById('placesList');
+      list.innerHTML = '';
+      const username = localStorage.getItem('username') || 'user123';
+      places.forEach(place => {
+        const booking = bookings.find(b => b.id === place.id && b.booked);
+        const card = document.createElement('div');
+        card.className = 'place-card';
+        let statusHtml = '';
+        if (booking) {
+          if (isBookingExpired(booking)) {
+            statusHtml = `<div class="status available">Available</div>`;
+          } else {
+            const msLeft = 3600000 - (Date.now() - booking.time);
+            const min = Math.floor(msLeft / 60000);
+            const sec = Math.floor((msLeft % 60000) / 1000);
+            statusHtml = `<div class="status booked">
+              Booked by ${booking.bookedBy}<br>
+              <small>Expires in ${min}m ${sec}s</small>
+              ${booking.bookedBy === username ? `<br><button class="btn" style="margin-top:8px;" onclick="unbookPlace(${place.id})">Unbook</button>` : ''}
+            </div>`;
+          }
+        } else {
+          statusHtml = `<div class="status available">Available</div>`;
+        }
+        card.innerHTML = `
+          <h3>${place.name}</h3>
+          <p>Capacity: ${place.capacity} people</p>
+          <p>Amenities: ${place.amenities}</p>
+          ${statusHtml}
+        `;
+        list.appendChild(card);
+      });
+    }
+    function logout() {
+      localStorage.removeItem('isLoggedIn');
+      window.location.href = "login.html";
+    }
+    // Refresh every 10 seconds to update timers
+    setInterval(renderPlaces, 10000);
+    // On load, set theme and particles, then render places
+    window.onload = function () {
+      const theme = localStorage.getItem('theme');
+      const btn = document.getElementById('toggleModeBtn');
+      if (theme === 'dark') {
+        document.body.classList.add('dark-mode');
+        btn.textContent = "☀️ Light Mode";
+      } else {
+        btn.textContent = "🌙 Dark Mode";
+      }
+      startParticles();
+      renderPlaces();
+    }
+  </script>
+</body>
+</html>

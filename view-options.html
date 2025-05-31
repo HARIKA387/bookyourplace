@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Study Space Options</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: radial-gradient(circle at 20% 30%, #fef08a 0%, #a5b4fc 40%, #38bdf8 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: #111827;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: rgba(37, 99, 235, 0.95);
+      color: #fff;
+      padding: 2rem 0 1rem 0;
+      text-align: center;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+      position: relative;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .options {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10), 0 1.5px 8px #a5b4fc;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+      margin: 2rem 0;
+    }
+
+    .space-option {
+      border: 2px solid #a5b4fc;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      padding: 1.2rem 1rem;
+      box-shadow: 0 2px 8px #a5b4fc22;
+      position: relative;
+      background: #f9fafb;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .space-option.full {
+      background: #fee2e2;
+      border-color: #dc2626;
+      opacity: 0.7;
+    }
+
+    .space-option .status {
+      font-weight: bold;
+      margin-top: 0.5rem;
+    }
+
+    .space-option .status.full {
+      color: #dc2626;
+    }
+
+    .space-option .status.available {
+      color: #16a34a;
+    }
+
+    .btn {
+      display: inline-block;
+      background: #3b82f6;
+      color: #fff;
+      padding: 0.7rem 1.5rem;
+      margin: 0.5rem 0.5rem 0 0;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: background 0.2s, transform 0.2s;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.18);
+      text-decoration: none;
+    }
+
+    .btn:disabled {
+      background: #d1d5db;
+      color: #888;
+      cursor: not-allowed;
+    }
+
+    select {
+      padding: 0.4rem 1rem;
+      border-radius: 6px;
+      border: 1px solid #a5b4fc;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
+    footer {
+      background: #1e40af;
+      color: #fff;
+      text-align: center;
+      padding: 1rem 0;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      margin-top: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Study Space Options</h1>
+  </header>
+
+  <main>
+    <section class="options" id="optionsSection">
+      <h2>Available Study Space Details</h2>
+      <!-- Space options will be rendered here -->
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Smart Study Zone Finder</p>
+  </footer>
+
+  <script>
+    // Space data
+    const spaces = [
+      {
+        id: 1,
+        name: "Study Room A",
+        amenities: "Wi-Fi, Whiteboard, Projector",
+        availability: "10:00 AM - 5:00 PM",
+        capacity: 4
+      },
+      {
+        id: 2,
+        name: "Library Quiet Zone",
+        amenities: "Wi-Fi, Power Outlets",
+        availability: "9:00 AM - 8:00 PM",
+        capacity: 6
+      },
+      {
+        id: 3,
+        name: "Café Study Area",
+        amenities: "Wi-Fi, Coffee Available",
+        availability: "8:00 AM - 6:00 PM",
+        capacity: 3
+      }
+    ];
+
+    // Get bookings from localStorage
+    function getBookings() {
+      const stored = localStorage.getItem('spaceBookings');
+      if (stored) return JSON.parse(stored);
+      return [];
+    }
+
+    // Save bookings to localStorage
+    function saveBookings(bookings) {
+      localStorage.setItem('spaceBookings', JSON.stringify(bookings));
+    }
+
+    // Check if booking expired (10 min = 600000 ms)
+    function isBookingExpired(booking) {
+      if (!booking || !booking.time) return false;
+      return (Date.now() - booking.time) > 600000;
+    }
+
+    // Book a space
+    function bookSpace(spaceId, people) {
+      let bookings = getBookings();
+      let booking = bookings.find(b => b.id === spaceId);
+      const username = localStorage.getItem('username') || 'user123';
+      if (!booking) {
+        bookings.push({
+          id: spaceId,
+          bookedBy: username,
+          people: people,
+          time: Date.now()
+        });
+      } else {
+        // Add people if not full
+        if (booking.people + people <= getSpaceById(spaceId).capacity) {
+          booking.people += people;
+          booking.time = Date.now();
+        }
+      }
+      saveBookings(bookings);
+      renderSpaces();
+    }
+
+    // Unbook a space
+    function unbookSpace(spaceId) {
+      let bookings = getBookings();
+      const username = localStorage.getItem('username') || 'user123';
+      bookings = bookings.filter(b => !(b.id === spaceId && b.bookedBy === username));
+      saveBookings(bookings);
+      renderSpaces();
+    }
+
+    function getSpaceById(id) {
+      return spaces.find(s => s.id === id);
+    }
+
+    function renderSpaces() {
+      let bookings = getBookings();
+      // Remove expired bookings
+      let changed = false;
+      bookings = bookings.filter(b => {
+        if (isBookingExpired(b)) {
+          changed = true;
+          return false;
+        }
+        return true;
+      });
+      if (changed) saveBookings(bookings);
+
+      const section = document.getElementById('optionsSection');
+      section.innerHTML = `<h2>Available Study Space Details</h2>`;
+
+      spaces.forEach(space => {
+        // Calculate total people booked
+        const bookingsForSpace = bookings.filter(b => b.id === space.id);
+        const totalPeople = bookingsForSpace.reduce((sum, b) => sum + b.people, 0);
+        const isFull = totalPeople >= space.capacity;
+        const userBooking = bookingsForSpace.find(b => b.bookedBy === (localStorage.getItem('username') || 'user123'));
+        let statusHtml = '';
+        if (isFull) {
+          statusHtml = `<div class="status full">Full</div>`;
+        } else if (userBooking) {
+          // Show time left
+          const msLeft = 600000 - (Date.now() - userBooking.time);
+          const min = Math.floor(msLeft / 60000);
+          const sec = Math.floor((msLeft % 60000) / 1000);
+          statusHtml = `<div class="status available">Booked by you<br><small>Expires in ${min}m ${sec}s</small></div>`;
+        } else {
+          statusHtml = `<div class="status available">Available</div>`;
+        }
+
+        section.innerHTML += `
+          <div class="space-option${isFull ? ' full' : ''}">
+            <h3>${space.name}</h3>
+            <p>Amenities: ${space.amenities}</p>
+            <p>Availability: ${space.availability}</p>
+            <p>Capacity: ${space.capacity} | Booked: ${totalPeople}</p>
+            ${statusHtml}
+            ${userBooking
+              ? `<button class="btn" onclick="unbookSpace(${space.id})">Unbook</button>`
+              : isFull
+                ? `<button class="btn" disabled>Full</button>`
+                : `<select id="people-${space.id}">
+                    ${[...Array(space.capacity - totalPeople).keys()].map(i => `<option value="${i+1}">${i+1} people</option>`).join('')}
+                  </select>
+                  <button class="btn" onclick="bookSpace(${space.id}, parseInt(document.getElementById('people-${space.id}').value))">Select This Space</button>`
+            }
+          </div>
+        `;
+      });
+    }
+
+    // Refresh every 5 seconds to update timers and status
+    setInterval(renderSpaces, 5000);
+
+    // Initial render
+    renderSpaces();
+
+    function viewOptions() {
+      // This function can be used to navigate or display options
+      alert('View Options clicked!');
+    }
+  </script>
+</body>
+
+</html>

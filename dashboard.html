@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Study Zone Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: radial-gradient(circle at 20% 30%, #fef08a 0%, #a5b4fc 40%, #38bdf8 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: #111827;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: rgba(37, 99, 235, 0.95);
+      color: #fff;
+      padding: 2rem 0 1rem 0;
+      text-align: center;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+      position: relative;
+    }
+
+    .dashboard-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      margin: 3rem auto 2rem auto;
+      max-width: 900px;
+      z-index: 2;
+      position: relative;
+    }
+
+    .dashboard-card {
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10), 0 1.5px 8px #a5b4fc;
+      padding: 2.5rem 2rem 2rem 2rem;
+      text-align: center;
+      min-width: 220px;
+      max-width: 260px;
+      flex: 1 1 220px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 2px solid #a5b4fc;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 16px 40px rgba(59, 130, 246, 0.18);
+      border-color: #2563eb;
+    }
+
+    .dashboard-card .icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .dashboard-card h3 {
+      margin: 0.5rem 0 0.5rem 0;
+      color: #1e3a8a;
+      font-size: 1.3rem;
+    }
+
+    .dashboard-card p {
+      color: #374151;
+      font-size: 1rem;
+      margin-bottom: 0;
+    }
+
+    .logout-btn {
+      position: absolute;
+      top: 1.5rem;
+      right: 2rem;
+      background: #fff;
+      color: #2563eb;
+      border: none;
+      border-radius: 20px;
+      padding: 0.5rem 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: #232946;
+      color: #fff;
+    }
+
+    footer {
+      background: #1e40af;
+      color: #fff;
+      text-align: center;
+      padding: 1rem 0;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      margin-top: auto;
+    }
+
+    @media (max-width: 700px) {
+      .dashboard-grid {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      .dashboard-card {
+        min-width: 90vw;
+        max-width: 95vw;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Smart Study Zone Dashboard</h1>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </header>
+  <div class="dashboard-grid">
+    <div class="dashboard-card" onclick="location.href='view-all-places.html'">
+      <span class="icon">📋</span>
+      <h3>View All Places</h3>
+      <p>See all available and booked study spaces.</p>
+    </div>
+    <div class="dashboard-card" onclick="location.href='select-space.html'">
+      <span class="icon">🪑</span>
+      <h3>Select Place</h3>
+      <p>Choose and book your preferred study spot.</p>
+    </div>
+    <div class="dashboard-card" onclick="location.href='index.html'">
+      <span class="icon">🏠</span>
+      <h3>Home</h3>
+      <p>Return to the main landing page.</p>
+    </div>
+    <div class="dashboard-card" onclick="location.href='login.html'">
+      <span class="icon">🔑</span>
+      <h3>Login</h3>
+      <p>Go to the login page.</p>
+    </div>
+  </div>
+  <footer>
+    <p>&copy; 2025 Smart Study Zone Finder</p>
+  </footer>
+  <script>
+    function logout() {
+      localStorage.removeItem('isLoggedIn');
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+
+</html>
